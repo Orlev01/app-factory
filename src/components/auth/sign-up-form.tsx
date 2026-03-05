@@ -20,7 +20,7 @@ export function SignUpForm() {
     if (state?.success && state.successMessage) {
       toast.success(state.successMessage);
     }
-  }, [state]);
+  }, [state?.success, state?.successMessage]);
 
   return (
     <form action={formAction} className="space-y-4">

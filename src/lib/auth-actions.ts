@@ -7,7 +7,6 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import {
   users,
-  sessions,
   verificationTokens,
   passwordResetTokens,
 } from "@/lib/db/schema";
@@ -247,8 +246,8 @@ export async function resetPassword(
     .delete(passwordResetTokens)
     .where(eq(passwordResetTokens.userId, resetToken.userId));
 
-  // Invalidate all sessions for the user
-  await db.delete(sessions).where(eq(sessions.userId, resetToken.userId));
+  // Note: JWT sessions are stateless and cannot be server-side invalidated.
+  // Existing sessions remain valid until they expire (see CLAUDE.md known limitations).
 
   redirect("/sign-in?message=Password reset successful. Please sign in.");
 }
@@ -278,7 +277,7 @@ export async function signInAction(
     if (error instanceof CredentialsSignin) {
       const message =
         error.cause?.err?.message ?? error.message ?? "";
-      if (message.includes("verify your email")) {
+      if (message.includes("verify your email") || error.code === "email_not_verified") {
         return { error: "Please verify your email before signing in." };
       }
       return { error: "Invalid email or password." };

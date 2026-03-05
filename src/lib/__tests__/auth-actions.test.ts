@@ -363,17 +363,13 @@ describe("resetPassword", () => {
     const deleteTokensChain = chainable();
     mockDelete.mockReturnValueOnce(deleteTokensChain);
 
-    // Third delete: sessions
-    const deleteSessionsChain = chainable();
-    mockDelete.mockReturnValueOnce(deleteSessionsChain);
-
     await expect(
       resetPassword(null, makeFormData({ token: "good-token", password: "password1", confirmPassword: "password1" }))
     ).rejects.toThrow("NEXT_REDIRECT");
 
     expect(mockUpdate).toHaveBeenCalled();
-    // Three deletes: consume token + remaining tokens + sessions
-    expect(mockDelete).toHaveBeenCalledTimes(3);
+    // Two deletes: consume token + remaining tokens (JWT sessions are stateless, not deleted)
+    expect(mockDelete).toHaveBeenCalledTimes(2);
     expect(mockRedirect).toHaveBeenCalledWith(
       "/sign-in?message=Password reset successful. Please sign in."
     );
