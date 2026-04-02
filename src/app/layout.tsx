@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Navbar } from "@/components/nav/navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { PostHogProvider } from "@/components/providers/posthog-provider";
+import { PageViewTracker } from "@/components/providers/page-view-tracker";
+import { Suspense } from "react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,11 +41,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
-          <Navbar />
-          <main>{children}</main>
-        </SessionProvider>
-        <Toaster richColors position="top-right" />
+        <PostHogProvider>
+          <SessionProvider>
+            <Navbar />
+            <Suspense fallback={null}>
+              <PageViewTracker />
+            </Suspense>
+            <main>{children}</main>
+          </SessionProvider>
+          <Toaster richColors position="top-right" />
+        </PostHogProvider>
       </body>
     </html>
   );

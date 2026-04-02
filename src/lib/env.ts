@@ -14,6 +14,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url("NEXT_PUBLIC_APP_URL must be a valid URL").or(
     isDev ? z.literal("").transform(() => "http://localhost:3000") : z.never()
   ).default(isDev ? "http://localhost:3000" : undefined as unknown as string),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional().default("https://us.i.posthog.com"),
 });
 
 const result = envSchema.safeParse(process.env);
